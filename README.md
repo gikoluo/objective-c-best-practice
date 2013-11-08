@@ -191,13 +191,16 @@ Objective C编程最佳实践 - Giko Luo
 7. 终极建议：优秀的代码，是自注释的。 通过重构，调整类、函数、过程、变量、结构以及使用正确的命名、合理地组织代码的结构, 使代码成为自注释的。这是关于注释的最佳实践。
 
 
+
+#编码实践
+
 ##结构
 1. 除非万不得已，不使用全局变量
 
 
-## OC特有的建议
 ### Categories
 Categories可非常方便的增加类的方法，特别是你可以为那些你无法完全控制的外部资源增加方法，如内置的类或第三方的类。
+TODO
 
 ### 使用对象， 而非字典
 
@@ -287,7 +290,7 @@ User *u = [NSKeyedUnarchiver unarchiveObjectWithData:[USER_DEFAULT dataForKey:kU
 
 ```
 
-#编码实践
+
 
 
 
