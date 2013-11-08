@@ -199,9 +199,93 @@ Objective C编程最佳实践 - Giko Luo
 ### Categories
 Categories可非常方便的增加类的方法，特别是你可以为那些你无法完全控制的外部资源增加方法，如内置的类或第三方的类。
 
+### 使用对象， 而非字典
+
+在项目中，经常需要传递或持久化一个结构化数据。最笨的方式是构造一个字典（Dictionary），然后将结构化数据作为该字典的key & value。如：
+
+```
+{"name": "Giko", "email": "spam@gmail.com”}
+```
+
+此方式易于保存，读取，但不具备可读性，也不利于编译检查。
+建议讲起重构为User对象：
+
+```
+@interface User : NSObject
+@property (nonatomic, retain) NSString* name;
+@property (nonatomic, retain) NSString* phone;
+@end
+```
+
+如果需要持久化，则增加Coding protol， 完整代码：
+```
+@interface User : NSObject <NSCoding>
+
+@property (strong, nonatomic) NSString *pk;
+@property (strong, nonatomic) NSString *name;
+@property (strong, nonatomic) NSString *phone;
+- (void) setFromDictionary: (NSDictionary *) dict;
++ (instancetype) userWithDictionary:(NSDictionary *)dict;
+
+@end
 
 
 
+@implementation User
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:[self pk] forKey:@"pk"];
+    [coder encodeObject:[self name] forKey:@"name"];
+    [coder encodeObject:[self password] forKey:@"phone"];
+}
+
+- (id)initWithCoder:(NSCoder *)coder
+{
+    self = [[User alloc] init];
+    if(self) {
+        self.pk = [coder decodeObjectForKey:@"pk"];
+        self.name = [coder decodeObjectForKey:@"name"];
+        self.phone = [coder decodeObjectForKey:@"phone"];
+    }
+    return self;
+}
+
++ (instancetype) userWithDictionary:(NSDictionary *)dict {
+    return [[User alloc] initWithDictionary:dict];
+}
+
+- (instancetype) initWithDictionary:(NSDictionary *)dict {
+    self = [self init];
+    if(self != nil) {
+        [self setFromDictionary:dict];
+    }
+    return self;
+}
+
+- (void) setFromDictionary: (NSDictionary *) dict
+{
+	//这里，用来映射服务器等数据源返回的字典数据
+    self.pk = dict[@"pk"];
+    self.name = dict[@"name"];
+    self.phone = dict[@"phone"];
+}
+
+@end
+
+
+//数据持久化调用
+//保存
+User *u = [User userWithDictionary: dict];
+NSData *userData = [NSKeyedArchiver archivedDataWithRootObject:u];
+[USER_DEFAULT setObject:userData forKey:kUserInfo];
+[USER_DEFAULT synchronize];
+
+//获取
+User *u = [NSKeyedUnarchiver unarchiveObjectWithData:[USER_DEFAULT dataForKey:kUserInfo]];
+
+
+```
 
 #编码实践
 
